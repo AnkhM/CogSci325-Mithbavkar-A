@@ -21,7 +21,10 @@ plot(cars)
 
 ```{r}
 library(tidyverse)
+library(dplyr)
 library(palmerpenguins)
+library(nycflights13)
+library(ggplot2)
 ```
 
 
@@ -45,5 +48,31 @@ ggplot(data = PlantGrowth,
        mapping = aes(x = group, y = weight)
 ) + 
 geom_point()
+```
+
+```{r}
+glimpse(flights)
+```
+```{r}
+flights |>
+  filter(month == 1 & day == 1)
+
+flights_houston <- flights |>
+  filter(dest %in% c("IAH", "HOU"))
+```
+
+```{r}
+flights |>
+  arrange(year, month, desc(day), dep_time)
+```
+```{r}
+flights |>
+  distinct(origin, dest)
+```
+```{r}
+flights |>
+  filter(arr_delay > 120 & dep_delay <= 0) |>
+  ggplot(aes(x = arr_delay, y = dep_delay)) +
+  geom_point()
 ```
 
