@@ -1,0 +1,54 @@
+---
+title: "Assignment 1"
+output: html_notebook
+author: "Ankit Mithbavkar"
+
+---
+
+## The Data
+
+For this research project, I am using the iris data set.
+
+This data set includes data for 50 flowers from each of 3 species of iris: setosa, versicolor, and virginica. The measurements are in centimeters for  the variables sepal length, sepal width, petal length, and petal width.
+
+
+```{r}
+library(datasets)
+head(iris)
+```
+
+## Research Questions
+
+1) How are sepal length and petal length related?
+
+2) Which species of iris has the greatest average petal length?
+
+## Plots
+
+### Question 1
+
+```{r}
+iris |>
+  ggplot(mapping = aes(x = Sepal.Length, y = Petal.Length)) + geom_point()
+```
+
+
+### Question 2
+
+```{r}
+iris |>
+  group_by(Species) |>
+  summarize(avg_petal_length = mean(Petal.Length, na.rm = TRUE)) |>
+  ggplot(mapping = aes(x = Species, y = avg_petal_length)) + geom_bar(stat = "identity")
+```
+
+## Conclusion
+
+### Question 1
+
+Based off the scatter plot, there seems to be a strong positive correlation between petal length and sepal length. This means that as sepal length increases, it's likely for petal length to increase as well.
+
+
+### Question 2
+
+Based on the bar chart, the virginica species of iris has the greatest average petal length. Versicolor would be second and versicolor would be last.
