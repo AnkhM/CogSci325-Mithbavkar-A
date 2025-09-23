@@ -75,4 +75,72 @@ flights |>
   ggplot(aes(x = arr_delay, y = dep_delay)) +
   geom_point()
 ```
+```{r}
+flights |>
+  mutate(speed = distance / air_time * 60,
+         .after = distance) |>
+  head()
+```
+```{r}
+flights |>
+  rename(dep_airport = origin,
+         arr_airport = dest)
+  select(year, month, day, contains("dep"))
+  head()
+  
+flights |>
+  select(!year:day)
+  head()
+```
+```{r}
+flights |>
+  group_by(month) |>
+  count()
+
+flights |>
+  group_by(month) |>
+  summarize(avg_delay = mean(dep_delay))
+```
+```{r}
+flights |>
+  group_by(month) |>
+  summarize(avg_arr_delay = mean(arr_delay, na.rm = TRUE),
+          sd_arr_delay = sd(arr_delay, na.rm = TRUE),
+          number_delayed = sum(arr_delay > 0, na.rm = TRUE),
+          total = n(),
+          percentage = number_delayed/total * 100
+  ) |>
+  ggplot(mapping = aes(x = month,
+                       y = percentage))
+```
+
+## ICMA 9/23/2025
+
+* Variables can't start with a number or include spaces or symbols
+* Style we'll use is snake_case
+
+```{r}
+# backticks make this work
+`1number` <- 12
+print(`1number`)
+```
+```{r style-example, echo=TRUE}
+library(nycflights13)
+summary <- flights |>
+  group_by(tailnum) |>
+    summarize(avg_arr_delay = mean(arr_delay, na.rm=TRUE), num_flights = n())
+summary
+```
+```{r}
+#| label: style-example
+#| echo: TRUE
+
+library(nycflights13)
+summary <- flights |>
+  group_by(tailnum) |>
+    summarize(avg_arr_delay = mean(arr_delay, na.rm=TRUE), num_flights = n())
+summary
+```
+
+
 
