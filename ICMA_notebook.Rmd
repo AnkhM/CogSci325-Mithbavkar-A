@@ -142,5 +142,18 @@ summary <- flights |>
 summary
 ```
 
+## ICMA 9/25/2025
+```{r}
+billboard_long <- billboard |>
+  pivot_longer(cols = wk1:wk76,
+               names_to = "week",
+               values_to = "rank")
+```
+
+```{r}
+billboard |>
+  filter(artist == "2 Pac") |>
+  select(wk10)
+```
 
 
