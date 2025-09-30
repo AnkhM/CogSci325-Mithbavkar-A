@@ -12,10 +12,6 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 # ICMA 09/04/2025
 
 ```{r}
-
-```
-
-```{r}
 plot(cars)
 ```
 
@@ -155,5 +151,35 @@ billboard |>
   filter(artist == "2 Pac") |>
   select(wk10)
 ```
+## ICMA 09/30/2025
 
+* Simpson's Paradox: trend in overall data differs from trends in individual groups
+
+```{r}
+flights |>
+  mutate(gain = arr_delay - dep_delay) |>
+  filter(!is.na(gain)) |>
+  group_by(carrier) |>
+  summarize(
+    avg_gain = mean(gain),
+    total_flights = n()
+  ) |>
+  arrange(desc(avg_gain)) |>
+  select(carrier, avg_gain, total_flights)
+```
+```{r}
+getwd()
+class_data <- read_csv("Week5-1_ClassData.csv", guess_max=2)
+class_data
+```
+```{r}
+problems(class_data)
+```
+
+```{r}
+read_csv("Week5-1_ClassData.csv",
+         col_types = list(bonusPayment = col_number()),
+         na = c("N/A", ".")) |>
+  rename(bonus_payment = bonusPayment)
+```
 
