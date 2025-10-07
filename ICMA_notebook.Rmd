@@ -183,3 +183,49 @@ read_csv("Week5-1_ClassData.csv",
   rename(bonus_payment = bonusPayment)
 ```
 
+# ICMA 10/07/2025
+
+* Layers
+  - Data: the dataframe you're plotting from
+  - Aesthetic: specific things in the dataframe to be mapped to aspects of the data visualization: x-values, y-values, size-variation, color-categories, etc.
+  - geom: a geometry representing data (line, points,etc.)
+  - statistics: transformations to be plotted (means, medians, etc.)
+  - facets: splitting the dataset based on some variable or category and providing a separate plot for each split
+  - coordinates: numeric system to determine position of geometry
+  - themes: default themes for axes, lines, grids, etc.
+
+```{r}
+mpg |>
+  ggplot(aes(y = hwy, x = displ, color=manufacturer)) +
+  geom_point(shape = 15, alpha = 0.5)
+```
+```{r}
+mpg |>
+  ggplot(aes(y = hwy, x = displ, shape=manufacturer)) +
+  geom_point(color = "royalblue")
+```
+
+```{r}
+mpg |>
+  ggplot(aes(y=hwy, x=displ)) +
+  geom_point() + 
+  geom_smooth()
+```
+
+```{r}
+mpg |>
+  ggplot(aes(y=hwy, x=displ, color=drv)) + 
+  geom_point() + 
+  geom_smooth()
+
+mpg |>
+  ggplot(aes(y=hwy, x=displ)) + 
+  geom_point(aes(color=drv)) + 
+  geom_smooth()
+```
+```{r}
+mpg |>
+  ggplot(aes(x = class, fill = class)) +
+  geom_bar()
+```
+
