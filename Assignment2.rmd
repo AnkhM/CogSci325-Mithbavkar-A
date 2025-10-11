@@ -1,1 +1,91 @@
+---
+title: "Assignment 2"
+author: "Ankit Mithbavkar"
+date: '10/10/2025'
+output:
+  html_document:
+    df_print: paged
+---
 
+# Introduction
+
+Can children understand what "most" truly means? Or rather, can they compare proportions between different groups? These researchers set out to answer these questions and determine whether the form of the data presented to them affects their understanding. In this experiment, they presented children with two types of problems: comparing proportions when given numerical amounts and comparing proportions when given boxes (representing the proportion) of different sizes. These forms are classified as "Continuous" and "Discrete", respectively.
+
+By the age of 6, I believe that children are capable of understanding the concept "most" regardless of the Discrete or Continuous Blocks. That is why my research question is "How is performance different on the Discrete Block vs. Continuous Block for 6-year-olds?" To answer this question, I need to measure the number of correct proportions selected against the type of question.
+
+
+# Exploration
+
+For this exploration, I need to measure SelectProportion against Block, where SelectProportion represents whether the selected answer was correct (1 = yes and 0 = no) and Block represents the question type ("Cont" = continuous and "Num" = discrete).
+```{r}
+library(tidyverse)
+library(ggplot2)
+# Include only subjects where no interference took place and that are 6 years old
+df <- read.csv("Most_tidy.csv") |> filter(Exclude == 0, AgeYears == 6)
+df
+```
+
+Let's first explore how often 6-year-old children correctly identify the proportion for the Continuous Block.
+
+```{r}
+df$SelectProportion <- as.factor(df$SelectProportion) # Change SelectProportion from an integer type to a factor type (so we can consider it a category)
+
+cont_block_success <- df |>
+  filter(Block == "Cont") |> # Take only Continuous block (labeled as "Cont")
+  group_by(SelectProportion) |> # Separate the data into Correct (1) and Incorrect (0)
+  summarize(Occurrences = n())
+cont_block_success
+  
+```
+Let's visualize this as a side-by-side bar chart!
+```{r}
+cont_block_success |> 
+  ggplot(aes(x=SelectProportion, y=Occurrences, fill=SelectProportion)) +
+  geom_bar(stat="identity")
+```
+Let's now explore how often 6-year-old children correctly identify the correct proportion for the Discrete Block.
+
+```{r}
+disc_block_success <- df |>
+  filter(Block == "Num") |> # Take only Discrete block (labeled as "Num")
+  group_by(SelectProportion) |> # Separate the data into Correct (1) and Incorrect (0)
+  summarize(Occurrences = n())
+disc_block_success
+```
+
+Let's visualize this as a side-by-side bar chart!
+
+```{r}
+disc_block_success |> 
+  ggplot(aes(x=SelectProportion, y=Occurrences, fill=SelectProportion)) +
+  geom_bar(stat="identity")
+```
+
+# Communication
+
+```{r, echo=FALSE}
+df <- df |>
+  mutate(
+    SelectProportion = factor(SelectProportion, levels = c(0, 1), labels = c("No", "Yes")),
+    Block = factor(Block, levels = c("Cont", "Num"), labels = c("Continuous", "Discrete"))
+  )
+
+# Count occurrences for each block/SelectProportion combo
+plot_data <- df |>
+  group_by(Block, SelectProportion) |>
+  summarise(Count = n())
+
+# Basic bar plot using ggplot2
+ggplot(plot_data, aes(x = Block, y = Count, fill = SelectProportion)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    x = "Block Group",
+    y = "Count",
+    fill = "Select Proportion",
+    title = "Selections by Block Group and Proportion"
+  ) +
+  theme_minimal()
+```
+
+
+Based on this plot, it's evident that for 6-year-old children, the Continuous block resulted in more correct selection (better performance) compared to that of the Discrete block. My initial hypothesis was incorrect in that the question type would have no effect in the selections made by this demographic.
