@@ -229,3 +229,77 @@ mpg |>
   geom_bar()
 ```
 
+## ICMA 10/14/2025
+
+```{r}
+ggplot(mpg, aes(x=displ, y=hwy)) +
+  geom_point(aes(color = class)) + 
+  geom_smooth(se=FALSE) +
+  labs(
+    x = "Engine displacement (L)",
+    y = "Highway fuel economy (mpg)",
+    color = "Car type",
+    title="Fuel efficiency generally decreases with engine size",
+    subtitle="Two seaters (sports cars) are an exception because of their light weight",
+    caption="Data from fueleconomy.gov"
+  )
+
+```
+```{r}
+ggplot(mpg, aes(x=displ, y=hwy)) +
+  geom_text(aes(color = class, label="Car"))
+```
+```{r}
+librar(ggrepel)
+
+label_info <- mpg |>
+  group_by(drv) |>
+  arrange(desc(displ)) |>
+  slice_head(n=1) |>
+  mutate(
+    drive_type = case_when(
+      drv == "f" ~ "front=wheel drive",
+      drv == "r" ~ "rear-wheel drive",
+      drv == "4" ~ "4-wheel drive"
+    )
+  ) |>
+  select(displ, hwy, drv, drive_type)
+
+ggplot(mpg, aes(x=displ, y=hwy, color = drv)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(se = FALSE) +
+  geom_text(
+    data = label_info,
+    aes(x = displ, y = hwy, label = drive_type),
+    fontface = "bold", size = 5,
+    hjust = "right", vjust="bottom"
+  ) +
+  theme(legend.position = "none")
+```
+```{r}
+ggplot(mpg, aes(x=displ, y=hwy, color)) +
+  geom_point() +
+  annotate(
+    geom = "label", x = 3.5, y = 38,
+    label = str_wrap("Larger engine sizes tend to have lower fuel economy", width = 30),
+    hjust = "left", color = "red"
+  ) + 
+  annotate(
+    geom = "segment",
+    x = 3, y = 35
+  )
+```
+```{r}
+ggplot(mpg, aes(x=displ, y=hwy, color=drv)) +
+  geom_point() +
+  geom_segment(aes(xend= 4, yend = 25)) +
+  theme(legend.position = "top") +
+  guides(color = guide_legend(nrow=3))
+```
+```{r}
+ggplot(mpg, aes(X=displ, y=hwy)) +
+  geom_point(aes(color=drv)) +
+  geom_smooth() +
+  cor_cardinates(xlim = 4, ylim=5)
+```
+
