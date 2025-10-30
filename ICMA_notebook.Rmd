@@ -376,3 +376,51 @@ flights |>
   arrange(desc(carriers))
 ```
 
+
+## ICMA 10/21/2025
+
+```{r}
+
+```
+
+## ICMA 10/30/2025
+
+```{r}
+airlines |>
+  head()
+```
+```{r}
+flights |>
+  select(year, time_hour, origin,dest, tailnum, carrier) |>
+  left_join(planes, join_by(tailnum))
+```
+
+```{r}
+rescale01 <- function(x) {
+  ({{ x }} - min({{ x }}, na.rm = TRUE)) / (max({{ x }}, na.rm=TRUE) = min({{ x }}, na.rm=TRUE))
+}
+```
+```{r}
+flights |> summarize(
+    across(c(dep_delay, arr_delay, air_time),
+           function(x) median(x, na.rm=TRUE)),
+    n=n()
+  )
+
+flights |> summarize(
+    across(c(dep_delay, arr_delay, air_time),
+           \(x) median(x, na.rm=TRUE)),
+    n=n()
+  )
+```
+```{r}
+flights |> summarize(
+    across(c(dep_delay, arr_delay, air_time),
+           list(
+             median = \(x) median(x, na.rm=TRUE),
+             mean = \(x) mean(x, na.rm=TRUE),
+           )),
+    n=n()
+  )
+```
+
