@@ -1,0 +1,251 @@
+---
+title: "Assignment 3"
+author: "Ankit Mithbavkar"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Set Up
+
+First, we'll load libraries and the data. 
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+study1_data <- read_csv('Study1_data-1.csv')
+```
+```{r}
+head(study1_data)
+```
+
+Then, we'll confirm the number of participants from the paper. They report that Study 1 collected data from 150 adults, but only 147 passed the attention check. In the attention check, participants were asked to type the word “instructions” in a text box, and their response is recorded in the variable called `instructions`.
+
+```{r}
+# Validate assumption that there are no repeat participants in the dataset
+study1_data |>
+  count(id) |>
+  filter(n != 1)
+
+# Validate only 147 passed the attention check
+study1_data |>
+  filter(attention == "instructions") |>
+  count() |>
+  pull()
+
+# See all the distinct inputs for attention
+study1_data |>
+  distinct(attention)
+
+# Create new dataframe with only included participants
+study1_include <- study1_data |> 
+  filter(attention == "instructions")
+```
+
+
+After we confirm the number of subjects, let's create a new dataframe with only the included participants. 
+
+```{r}
+study1_include <- study1_data |> 
+  filter(attention == "instructions")
+```
+
+
+Now, let's review Study 2.
+
+```{r}
+study2_data <- read_csv('Study2_data-1.csv')
+```
+```{r}
+head(study2_data)
+```
+
+Let's repeat the cleansing process for Study 2 and validate that N=145 as stated in the Abstract.
+
+```{r}
+# Validate assumption that there are no repeat participants in the dataset
+study2_data |>
+  count(id) |>
+  filter(n != 1)
+
+# Validate only 145 passed the attention check
+study2_data |>
+  filter(attention == "instructions") |>
+  count() |>
+  pull()
+
+# See all the distinct inputs for attention
+study2_data |>
+  distinct(attention)
+
+# Create new dataframe with only included participants
+study2_include <- study2_data |> 
+  filter(attention == "instructions")
+```
+
+Now, let's review Study 3.
+
+```{r}
+study3_data <- read_csv('Study3_data.csv')
+```
+
+```{r}
+head(study3_data)
+study3_data |> 
+  select(religion,`donation-binary`, `charity-choice - Selected Choice`,`donation-openended`) |>
+  filter(`donation-binary` == 1, `charity-choice - Selected Choice` != "None of these (please enter a charity of your choice)")
+```
+Let's repeat the cleansing process for Study 3 and validate that N=297 as stated in the Abstract.
+
+```{r}
+# Validate assumption that there are no repeat participants in the dataset
+study3_data |>
+  count(id) |>
+  filter(n != 1)
+
+# Validate only 297 passed the attention check
+study3_data |>
+  filter(attention == "instructions") |>
+  count() |>
+  pull()
+
+# See all the distinct inputs for attention
+study3_data |>
+  distinct(attention)
+
+# Create new dataframe with only included participants
+study3_include <- study3_data |> 
+  filter(attention == "instructions")
+```
+
+# Figure 2
+
+Figure 2 in the paper shows the proportion of participants who believe in moral progress for each experiment. The relevant variable is `progress-belief`. They only include participants who said "Yes" on this question, so let's create a new dataframe that only includes those participants for all 3 studies.
+
+```{r}
+
+# Create a dataframe for each study that includes the Study label, type of belief, and percentage
+study1_progress_include <- study1_include |>
+  count(`progress-belief`) |>
+  mutate(percentage= n / sum(n) * 100, study = 'Study 1') |>
+  select(study, `progress-belief`, percentage)
+
+study2_progress_include <- study2_include |>
+  count(`progress-belief`) |>
+  mutate(percentage= n / sum(n) * 100, study = 'Study 2') |>
+  select(study, `progress-belief`, percentage)
+
+study3_progress_include <- study3_include |>
+  count(`progress-belief`) |>
+  mutate(percentage= n / sum(n) * 100, study = 'Study 3') |>
+  select(study, `progress-belief`, percentage)
+
+# Merge all the dataframes into 1
+all_studies_include <- study1_progress_include |>
+  full_join(study2_progress_include) |>
+  full_join(study3_progress_include)
+
+all_studies_include
+```
+```{r}
+all_studies_include |>  
+  ggplot(aes(y=study, x=percentage, fill=`progress-belief`)) +
+  geom_bar(stat="identity") +
+  scale_y_discrete(limits=rev) + # Reverse y-axis labels
+  labs(
+    x="Percentage", 
+    y="", 
+    fill="Belief in Progress") +
+  guides(fill= guide_legend(reverse = TRUE)) + # Reverse legend labels to match order in the bar
+  theme_bw() +
+  theme(legend.position = "bottom")
+```
+# Exploratory Analysis
+
+In Study 3, researchers found that participants' donations are predicted by whether their explanations state that human action drives moral progress. Religion is often used as a basis or guide for moal beliefs. Therefore, I want to understand how religious groups that believe human action drives moral progress contribute to donations.
+
+First, let's determine the top 5 religious groups for this analysis.
+
+```{r}
+study3_include |>
+  group_by(religion) |>
+  filter(`progress-belief` == 'Yes') |>
+  count() |>
+  arrange(desc(n))
+```
+
+```{r}
+study3_include |>
+  group_by(religion) |>
+  filter(`progress-belief` == 'Yes') |>
+  count() |>
+  ggplot(aes(x=n,y=reorder(religion, -n), fill=religion)) +
+  geom_bar(stat = 'identity') +
+  labs(title = "# of Religious Groups that Believe Human Action Drives 
+                  Moral Progress",
+       y = "Religious Groups",
+       x = "Count") +
+  theme(legend.position = "none")
+```
+
+It appears the top 5 religious groups that believe that human progress drives morality are Agnosticism, Atheism, Catholicism, Non-denominational Christianity, and "Spiritual but no religion". Now, let's determine the percentage of participants in each of these religious groups that have made donations.
+
+```{r}
+study3_religion_include <- study3_include |>
+  filter(`progress-belief` == 'Yes', religion %in% c("Agnosticism", "Atheism", "Catholicism", "Non-denominational Christianity", "Spiritual but no religion"))
+
+study3_religion_include |>
+  group_by(religion) |>
+  filter(`progress-belief` == 'Yes') |>
+  summarize(prop_donated = mean(`donation-binary`, na.rm=TRUE))
+```
+```{r}
+study3_religion_include |>
+  group_by(religion) |>
+  summarize(prop_donated = mean(`donation-binary`, na.rm=TRUE)) |>
+  ggplot(aes(x=prop_donated,y=reorder(religion, -prop_donated), fill=religion)) +
+  geom_bar(stat = 'identity') +
+  labs(title =  "Percentage of Religious Group Members that Donated",
+       y = "Religious Groups",
+       x = "Percentage") +
+  theme(legend.position = "none")
+```
+It appear that although Agnosticism had the most members that beleived human progress drives moral belief, they were less likely to donate. Just as interesting, all participants that were spiritual and had no religion that carried this belief made donations.
+
+Now this raises the question: how high can we expect donations to be from these groups?
+
+```{r}
+study3_religion_include |>
+  group_by(religion) |>
+  summarize(avg_donation = mean(`donation-amount`, na.rm=TRUE)) |>
+  ggplot(aes(x=avg_donation,y=reorder(religion, -avg_donation), fill=religion)) +
+  geom_bar(stat = 'identity') +
+  labs(title =  "Average Donation Amount per Religious Group",
+       y = "Religious Groups",
+       x = "Donation Amount") +
+  theme(legend.position = "none")
+```
+
+
+Even though Non-deominational Christians were 2nd most likely to donate, their donations tend to be relatively more modest. Although Atheists were 2nd least likely to donate, their donations tended to be among the highest. Also interesting is that participants who were spiritual but had no religion had the highest average donation amount.
+
+Overall, well over half of all members in each of these religious groups that believe that human action drives moral progress can be expected to donate at least 9$ towards a charitable cause.
+
+
+# Exploratory Text Analysis
+
+An admirable trait of humanity is giving even when oneself is suffering. Such a trait is a characteristic of morality. Through Study 3, I want to explore if participants embody this characteristic and donate to a charitable cause even when they themselves need the money. 
+
+That is why I decided to see if words like "afford", "financial", and "broke" existed in their donation explanations.
+
+```{r}
+library(stringr)
+
+study3_include |> 
+  filter(`donation-binary` == 1) |>
+  summarize(total_donations_despite_struggle = sum(str_detect(`donation-openended`, "afford|financial|broke")) / n())
+```
+It appears that around 10% of all donations were made by those who struggled financially or could not afford other necessities in their own life. Giving while suffering is a difficult decision to make, yet it appears that there was a fair portion of those who persisted and believed in their own contributions nevertheless.
+  
+  

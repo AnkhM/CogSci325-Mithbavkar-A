@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Data Exercise 1"
 author: "Ankit Mithbavkar"
 date: "'r Sys.Date()'"
 output: html_notebook
