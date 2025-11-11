@@ -1,8 +1,13 @@
 ---
 title: "D2SC ICMAs"
-output: html_notebook
 author: "Ankit Mithbavkar"
 date: "`r Sys.Date()`"
+output:
+  html_notebook: default
+    toc: true
+    toc_float: true
+  pdf_document: 
+    toc: true
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
@@ -128,7 +133,7 @@ summary <- flights |>
 summary
 ```
 ```{r}
-#| label: style-example
+#| label: style-example2
 #| echo: TRUE
 
 library(nycflights13)
@@ -423,4 +428,45 @@ flights |> summarize(
     n=n()
   )
 ```
+
+
+## ICMA 11/04/2025
+
+```{r}
+flights$carrier
+```
+
+
+```{r}
+flights[[10]]
+```
+
+```{r}
+flights[["carrier"]]
+```
+
+```{r}
+flights["carrier"]
+```
+
+```{r}
+animals <- c("giraffe", "zebra", "monkey")
+
+for (name in animals) {
+  print(name)
+}
+
+for (i in seq_along(animals)) {
+  print(animals[[i]])
+}
+```
+
+
+## ICMA 11/11/2025
+
+```{r}
+result <- 2 * 10
+```
+
+ of 2 multiplied by 10 is `r result`. How __interesting__.
 
