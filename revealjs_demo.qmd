@@ -1,0 +1,47 @@
+---
+title: "ICMA 11/13/25"
+author: "Pooja Menon"
+format:
+  revealjs:
+    theme: blood
+---
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+## Instructions
+
+-   create a new slide that has two columns
+-   put a figure on one side and text on the other
+-   hide your code
+
+## Relation between time in air and distance traveled
+
+::::: columns
+
+::: {.column width="\"50%"}
+
+```{r}
+flights |> 
+  ggplot(aes(y = air_time, x = distance)) +
+  geom_point() +
+  geom_smooth()
+```
+
+:::
+
+::: {.column width="\"50%"}
+
+TEXT
+
+:::
+
+::::
+
+:::{.notes}
+
+This shows that blah blah blah
+
+:::
