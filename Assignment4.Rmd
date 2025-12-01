@@ -1,0 +1,115 @@
+---
+title: "Assignment 4"
+author: "Ankit Mithbavkar"
+date: "11/24/2025"
+output: 
+  revealjs::revealjs_presentation:
+        theme: simple
+        scrollable: true
+        center-title-slide: false 
+        toc: true
+---
+
+## About the Data
+
+barroso2021 is a dataset created by Barroso for his paper “A meta-analysis of the relation between math anxiety and math achievement.” The study compiles the results from 332 studies, including 747 total effect sizes, in order to understand the relation between math anxiety and math achievement on a multitude of data.
+
+## Load the Data
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(dplyr)
+library(psymetadata)
+
+data("barroso2021")
+knitr::kable(head(barroso2021))
+```
+
+
+## Clean the Data
+
+Before working with the data, it's important to remove missing continents and map the continents and grades to labels that can be easily understood.
+
+```{r, echo=FALSE}
+# We can filter out -999 (missing continents) and map numeric codes to labels
+clean_data <- barroso2021 |>
+  filter(continent != -999) |>
+  mutate(
+    # Convert Continent to a more readable factor
+    continent_label = factor(continent, 
+                             levels = c(1, 2, 3, 4, 5, 6),
+                             labels = c("N. America", "S. America", "Europe", 
+                                        "Asia", "Africa", "Oceania")),
+    
+    # Convert Grade to a more readable factor
+    grade_label = factor(grade,
+                         levels = c(1, 2, 3, 4, 5, 6),
+                         labels = c("1st-2nd Grade", "3rd-5th Grade", 
+                                    "6th-8th Grade", "High School", 
+                                    "Post-Secondary", "Adults"))
+  )
+
+knitr::kable(head(clean_data))
+```
+
+## Research Question
+
+Performance anxiety is a universal feeling among all ethnicity, cultures, and ages. Often the result of a lack of confidence, the fear of not meeting a standard or goal can lead one to fulfill that fear. The same can be said about math. If one lacks confident in their math abilities and has high anxiety regarding them, their math achievement will reflect such. 
+
+As a result, I seek to explore whether this assumption holds true across all grade levels and continents.
+
+## Visualize
+```{r plot-analysis, echo=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+# Define a custom color palette (non-default)
+custom_colors <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00")
+
+# Plotting Relationship between Anxiety & Achievement across Grades and Continents
+clean_data |>
+  ggplot(aes(x = grade_label, y = yi, fill = grade_label)) +
+  
+  # Used a boxplot with jitter to show distribution + raw data
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+  geom_jitter(width = 0.2, alpha = 0.3, size = 1) +
+  
+  geom_hline(yintercept = 0, linetype = "dotted", color = "black", size = 1) +
+  
+  facet_wrap(~continent_label) +
+  
+  scale_fill_manual(values = custom_colors) +
+  theme_minimal() +
+  
+  labs(
+    title = "Math Anxiety vs. Achievement: Effect Sizes by Grade & Continent",
+    subtitle = "Negative values indicate higher anxiety relates to lower achievement",
+    x = "Grade Level",
+    y = "Effect Size (Fisher's z)",
+    fill = "Grade Level",
+    caption = "Data: Barroso et al. (2021)"
+  ) +
+  
+  theme(
+    axis.text.x = element_blank(), # Hid x text because the legend covers it
+    axis.ticks.x = element_blank(),
+    strip.text = element_text(face = "bold", size = 12),
+    legend.position = "bottom"
+  )
+```
+
+```{r, echo=FALSE}
+# Calculating the average effect size for High School students
+hs_stats <- clean_data |>
+  filter(grade == 4) |>
+  summarize(mean_es = mean(yi, na.rm = TRUE),
+            n_studies = n())
+
+avg_hs_es <- round(hs_stats$mean_es, 2)
+count_hs <- hs_stats$n_studies
+```
+
+## Conclusion
+
+As predicted, the relationship between math anxiety and achievement is largely negative across all groups (shown by the data points falling below the dotted zero line). This means that for a majority of people across the globe, regardless of grade level, experiencing higher math anxiety leads to lower achievement.
+
+Specifically focusing on high school students, our dataset includes **`r count_hs`** distinct effect sizes. The average effect size for this group is **`r avg_hs_es`**, suggesting a moderate negative correlation between anxiety and performance during the high school years.
+
+
